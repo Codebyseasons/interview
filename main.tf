@@ -70,11 +70,7 @@ resource "aws_security_group" "ec2_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
-# Create SSH Key Pair From local 
-resource "aws_key_pair" "ec2_key" {
-  key_name   = "my-ec2-key"
-  public_key = file("~/.ssh/id_rsa.pub") 
-}
+
 
 # EC2 Instance to run Grafana and Shell Script
 resource "aws_instance" "grafana_instance" {
@@ -83,7 +79,7 @@ resource "aws_instance" "grafana_instance" {
   security_groups             = [aws_security_group.ec2_sg.name]
   iam_instance_profile        = aws_iam_instance_profile.ec2_role.name
   associate_public_ip_address = true
-  key_name                    = aws_key_pair.ec2_key.key_name
+  key_name                    = "graf"
   user_data                   = <<-EOT
     #!/bin/bash
     yum update -y
