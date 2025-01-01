@@ -1,101 +1,119 @@
 Overview
 
-The files work together to provision infrastructure, manage its state, and automate interactions with PostgreSQL databases and APIs:
+This project implements an automated system to fetch, store, process, and visualise data from multiple APIs. It includes database setup, data ingestion, historical tracking, and a Grafana dashboard for data visualisation.
 
-main.tf: A Terraform configuration file for provisioning cloud resources.
+The key components of the system are:
 
-sql.sh: A Bash script for database initialization and API data management.
+API Data Fetching: Periodically retrieves data from multiple APIs.
 
-terraform.tfstate and terraform.tfstate.backup: Terraform state files to track and manage the infrastructure.
+Data Storage: Saves the data in a PostgreSQL database for current and historical records.
 
-Workflow Summary
+Visualisation: Displays insights using a Grafana dashboard connected to the database.
 
-Use main.tf to provision infrastructure, including a PostgreSQL database.
 
-Use terraform.tfstate to verify the current state of the resources.
 
-Run sql.sh to initialize the database schema and process API data.
 
-1. main.tf
+Workflow
 
-The main.tf file contains Terraform configuration code to provision cloud resources. It works as follows:
+Environment Setup
 
-Key Components:
+Provider Configuration (provider.tf): Sets up the required cloud resources (e.g., AWS) for managing the infrastructure.
 
-Provider Setup: Specifies the cloud provider and its credentials.
+Database Initialisation (rds.tf): Configures an RDS PostgreSQL instance to host the database.
 
-Resource Definitions: Likely includes resources such as RDS instances or networking components.
+Data Ingestion Script (sql.sh)
 
-Variables and Outputs: Parameters and outputs for reusable and accessible configurations.
+This script performs the following tasks:
 
-Usage:
+Credential Fetching: Retrieves database credentials from AWS Secrets Manager.
 
-Initialize Terraform: terraform init
+Database Initialisation:
 
-Plan and Apply Changes: terraform plan && terraform apply
+Creates tables for storing current (api_data) and historical data (historical_data).
 
-Track state in terraform.tfstate and terraform.tfstate.backup.
+Ensures schema consistency on startup.
 
-2. sql.sh
 
-The sql.sh script automates interactions with PostgreSQL and APIs. Its functionality includes:
 
-Key Operations:
 
-AWS Secrets Manager: Fetches database credentials securely.
 
-Database Initialization: Creates necessary PostgreSQL tables (api_data, historical_data).
+API Processing:
 
-API Processing: Fetches and stores API data, updating and tracking changes.
+Iterates over API configurations (name and endpoint).
 
-Execution Flow:
+Fetches JSON data from each API and parses it.
 
-Retrieves database credentials.
+Checks if the data has been updated since the last fetch.
 
-Initializes the database schema.
+Saves the data into the database and logs changes in the historical_data table.
 
-Processes APIs to update data in the database.
+Database Schema
 
-Dependencies:
+The script creates and manages two PostgreSQL tables:
 
-Tools: bash, curl, jq, AWS CLI, and PostgreSQL client (psql).
+api_data:
 
-Environment Setup: Requires AWS access and PostgreSQL connection details.
+Stores the latest data fetched from each API.
 
-3. terraform.tfstate and terraform.tfstate.backup
+Fields: api_name, last_updated, and data.
 
-State files that track Terraform-managed resources.
+historical_data:
 
-Key Details:
+Tracks all changes over time for historical analysis.
 
-Primary State File: terraform.tfstate contains live infrastructure state.
+Fields: api_name, timestamp, and data.
 
-Backup: terraform.tfstate.backup is the last known good state before changes.
+Grafana Dashboard (dashboard.json)
 
-Notes:
+The dashboard.json defines a Grafana dashboard to visualise data:
 
-Sensitive: Avoid manual edits or committing to version control.
+Panels:
 
-Secure with access controls and consider remote backends for state management.
+Displays real-time and historical bike availability.
 
-File Interactions
+Tracks bikes' battery levels and operational states.
 
-Provisioning with main.tf:
+Queries:
 
-Creates infrastructure like a PostgreSQL database used by sql.sh.
+Fetches data from the PostgreSQL database.
 
-State Tracking:
+Uses advanced SQL queries to extract insights (e.g., availability, battery status).
 
-terraform.tfstate reflects changes from main.tf.
+Features:
 
-Database and API Automation with sql.sh:
+Time series analysis.
 
-Uses the database provisioned in main.tf to manage API data and updates.
+Bar charts for bike states (available, reserved, or disabled).
 
-Workflow:
+A list of active API providers.
 
-Provision infrastructure using main.tf.
 
-Confirm resource creation using terraform.tfstate.
 
-Run sql.sh to initialize and populate the database.
+Execution
+
+Run Script: Execute sql.sh to fetch data and populate the database.bash
+Copy code
+bash sql.sh
+
+
+Visualise Data: Access the Grafana dashboard using the provided dashboard.json.
+
+Key Features
+
+Automated Fetching: Automates data retrieval using curl and JSON parsing.
+
+Historical Tracking: Maintains historical records for trends and analytics.
+
+Custom Visualisations: Provides customisable panels in Grafana for real-time insights.
+
+
+
+Prerequisites
+
+AWS CLI configured with appropriate permissions.
+
+PostgreSQL installed or accessible via RDS.
+
+jq for JSON processing.
+
+Grafana setup for dashboard visualisation.
