@@ -9,7 +9,7 @@
 #secrets_manager = boto3.client('secretsmanager', region_name='us-east-1')
 
 ## Configuration
-#SECRET_NAME = "postgresql-db-credentials"
+#SECRET_NAME = "Postgresql-db-credentials"
 #DB_NAME = "api_data"
 #DB_PORT = 5432
 #DB_HOST = "postgresql-cluster.cluster-cvkyaqkiorxx.us-east-1.rds.amazonaws.com"
